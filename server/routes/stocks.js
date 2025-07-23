@@ -30,10 +30,9 @@ router.get('/:ticker', (req, res) => {
       return res.status(404).json({ error: 'Stock data not found' });
     }
     const lines = data.trim().split('\n');
-    const headers = lines[0].split(',');
+    const headers = lines[0].split('|');
     const rows = lines.slice(1).map(line => {
-      // Handle commas inside quoted fields if needed (not present in current data)
-      return line.split(',');
+      return line.split('|');
     });
     const totalItems = rows.length;
     const totalPages = Math.ceil(totalItems / pageSize);
