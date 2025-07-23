@@ -13,7 +13,7 @@ function Stocks() {
         setStocks(data.stocks || []);
         setLoading(false);
       })
-      .catch(err => {
+      .catch(() => {
         setError('Failed to fetch stocks');
         setLoading(false);
       });

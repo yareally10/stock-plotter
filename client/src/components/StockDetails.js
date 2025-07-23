@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
+import StockChart from './StockChart';
+import StockTable from './StockTable';
 
 function StockDetails() {
   const { ticker } = useParams();
@@ -10,7 +12,32 @@ function StockDetails() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
+  const [allChartData, setAllChartData] = useState([]);
 
+  // Fetch all data for the chart (unpaginated)
+  useEffect(() => {
+    fetch(`/stocks/${ticker}?page=1`)
+      .then(res => res.json())
+      .then(json => {
+        if (json.totalPages > 1) {
+          // Fetch all pages and combine
+          const fetches = [];
+          for (let p = 1; p <= json.totalPages; p++) {
+            fetches.push(
+              fetch(`/stocks/${ticker}?page=${p}`).then(res => res.json())
+            );
+          }
+          Promise.all(fetches).then(results => {
+            const allRows = results.flatMap(r => r.data || []);
+            setAllChartData(allRows);
+          });
+        } else {
+          setAllChartData(json.data || []);
+        }
+      });
+  }, [ticker]);
+
+  // Fetch paginated data for the table
   useEffect(() => {
     setLoading(true);
     fetch(`/stocks/${ticker}?page=${page}`)
@@ -44,29 +71,8 @@ function StockDetails() {
     <div>
       <h1>{ticker.toUpperCase()} Stock Data</h1>
       <Link to="/stocks">&larr; Back to Stocks</Link>
-      <table border="1" cellPadding="6" style={{ marginTop: 16, borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            {headers.map(header => (
-              <th key={header}>{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, idx) => (
-            <tr key={idx}>
-              {headers.map(header => (
-                <td key={header}>{row[header]}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div style={{ marginTop: 16 }}>
-        <button onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>Previous</button>
-        <span style={{ margin: '0 12px' }}>Page {page} of {totalPages}</span>
-        <button onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages}>Next</button>
-      </div>
+      <StockChart allChartData={allChartData} ticker={ticker} />
+      <StockTable data={data} headers={headers} page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
     </div>
   );
 }

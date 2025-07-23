@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import './App.css';
 import Stocks from './components/Stocks';
 import StockDetails from './components/StockDetails';
 
@@ -16,4 +15,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 
