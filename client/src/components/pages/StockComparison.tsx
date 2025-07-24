@@ -9,6 +9,9 @@ interface StockSummary {
   startDate: string | null;
   endDate: string | null;
   priceChange: number | null;
+  startPrice: number | null;
+  endPrice: number | null;
+  changePercentage: number | null;
   loading: boolean;
   error?: string;
 }
@@ -31,7 +34,16 @@ const StockComparison: React.FC = () => {
       if (!summaries[ticker]) {
         setSummaries(prev => ({
           ...prev,
-          [ticker]: { ticker, startDate: null, endDate: null, priceChange: null, loading: true }
+          [ticker]: {
+            ticker,
+            startDate: null,
+            endDate: null,
+            priceChange: null,
+            startPrice: null,
+            endPrice: null,
+            changePercentage: null,
+            loading: true
+          }
         }));
         fetch(`/stocks/${ticker}/prices`)
           .then(res => res.json())
@@ -43,6 +55,9 @@ const StockComparison: React.FC = () => {
                 startDate: json.startDate || null,
                 endDate: json.endDate || null,
                 priceChange: typeof json.priceChange === 'number' ? json.priceChange : null,
+                startPrice: typeof json.startPrice === 'number' ? json.startPrice : null,
+                endPrice: typeof json.endPrice === 'number' ? json.endPrice : null,
+                changePercentage: typeof json.changePercentage === 'number' ? json.changePercentage : null,
                 loading: false
               }
             }));
@@ -55,6 +70,9 @@ const StockComparison: React.FC = () => {
                 startDate: null,
                 endDate: null,
                 priceChange: null,
+                startPrice: null,
+                endPrice: null,
+                changePercentage: null,
                 loading: false,
                 error: 'Failed to fetch data'
               }
@@ -139,6 +157,8 @@ const StockComparison: React.FC = () => {
                 <th style={{ textAlign: 'left' }}>Ticker</th>
                 <th style={{ textAlign: 'right' }}>Start Date</th>
                 <th style={{ textAlign: 'right' }}>End Date</th>
+                <th style={{ textAlign: 'right' }}>Start Price</th>
+                <th style={{ textAlign: 'right' }}>End Price</th>
                 <th style={{ textAlign: 'right' }}>Change (%)</th>
               </tr>
             </thead>
@@ -150,13 +170,15 @@ const StockComparison: React.FC = () => {
                     <td style={{ fontWeight: 600 }}>{ticker.toUpperCase()}</td>
                     <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.startDate || '-'}</td>
                     <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.endDate || '-'}</td>
+                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.startPrice === 'number' && isFinite(summary.startPrice) ? summary.startPrice.toFixed(2) : '-'}</td>
+                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.endPrice === 'number' && isFinite(summary.endPrice) ? summary.endPrice.toFixed(2) : '-'}</td>
                     <td style={{ textAlign: 'right' }}>
                       {summary?.loading
                         ? 'Loading...'
                         : summary?.error
                         ? summary.error
-                        : typeof summary?.priceChange === 'number' && isFinite(summary.priceChange)
-                        ? `${(summary.priceChange * 100).toFixed(2)}%`
+                        : typeof summary?.changePercentage === 'number' && isFinite(summary.changePercentage)
+                        ? `${summary.changePercentage.toFixed(2)}%`
                         : '-'}
                     </td>
                   </tr>
