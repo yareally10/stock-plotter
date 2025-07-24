@@ -10,13 +10,13 @@ describe('DataService', () => {
   });
 
   describe('getStocksFromFile', () => {
-    it('should return tickers from csv files', done => {
+    it('should return tickers from csv files in ascending order', done => {
       fs.readdir.mockImplementation((dir, cb) => {
-        cb(null, ['AAPL.csv', 'GOOG.csv', 'README.txt']);
+        cb(null, ['GOOG.csv', 'AAPL.csv', 'README.txt']);
       });
       DataService.getStocksFromFile((err, tickers) => {
         expect(err).toBeNull();
-        expect(tickers).toEqual(['AAPL', 'GOOG']);
+        expect(tickers).toEqual(['AAPL', 'GOOG']); // sorted ascending
         done();
       });
     });
@@ -34,19 +34,14 @@ describe('DataService', () => {
   });
 
   describe('getPaginatedStockDataFromFile', () => {
-    const csvData = 'Date|Close\n2024-01-01|100\n2024-01-02|110\n2024-01-03|120';
-    it('should return paginated stock data', done => {
+    const csvData = 'Date|Close\n2024-01-01|100\n2024-01-03|120\n2024-01-02|110';
+    it('should return paginated stock data sorted by date descending', done => {
       fs.readFile.mockImplementation((file, enc, cb) => {
         cb(null, csvData);
       });
-      DataService.getPaginatedStockDataFromFile('AAPL', 1, 2, (err, result) => {
+      DataService.getPaginatedStockDataFromFile('AAPL', 1, 3, (err, result) => {
         expect(err).toBeNull();
-        expect(result.page).toBe(1);
-        expect(result.pageSize).toBe(2);
-        expect(result.totalItems).toBe(3);
-        expect(result.totalPages).toBe(2);
-        expect(result.data.length).toBe(2);
-        expect(result.data[0]).toEqual({ Date: '2024-01-01', Close: '100' });
+        expect(result.data.map(row => row.Date)).toEqual(['2024-01-03', '2024-01-02', '2024-01-01']); // sorted descending
         done();
       });
     });

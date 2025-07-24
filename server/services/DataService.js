@@ -10,7 +10,8 @@ class DataService {
       // Only return .csv files (without extension)
       const tickers = files
         .filter(file => path.extname(file) === '.csv')
-        .map(file => path.basename(file, '.csv'));
+        .map(file => path.basename(file, '.csv'))
+        .sort((a, b) => a.localeCompare(b));
       callback(null, tickers);
     });
   }
@@ -22,6 +23,9 @@ class DataService {
       const lines = data.trim().split('\n');
       const headers = lines[0].split('|');
       const rows = lines.slice(1).map(line => line.split('|'));
+      // Sort rows by date descending (assume 'Date' is the first header)
+      const dateIdx = headers.indexOf('Date');
+      rows.sort((a, b) => (a[dateIdx] < b[dateIdx] ? 1 : a[dateIdx] > b[dateIdx] ? -1 : 0));
       const totalItems = rows.length;
       const totalPages = Math.ceil(totalItems / pageSize);
       if (page < 1 || page > totalPages) {
