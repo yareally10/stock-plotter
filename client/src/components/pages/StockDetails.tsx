@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import StockChart from './StockChart';
-import StockTable from './StockTable';
+import StockChart from '../stocks/StockChart';
+import StockTable from '../stocks/StockTable';
 import Page from '../core/Page';
 
 interface StockRow {
@@ -24,7 +24,7 @@ const StockDetails: React.FC = () => {
     fetch(`/stocks/${ticker}/prices`)
       .then(res => res.json())
       .then(json => {
-        // The endpoint returns { prices: [{ date, close }, ...] }
+        // The endpoint returns { prices: [{ date, close }, ...], ... }
         // Map to StockRow format expected by StockChart
         const chartRows = (json.prices || []).map((row: any) => ({
           Date: row.date,

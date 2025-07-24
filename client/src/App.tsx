@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Stocks from './components/stocks/Stocks';
-import StockDetails from './components/stocks/StockDetails';
-import StockComparison from './components/stocks/StockComparison';
+import Stocks from './components/pages/Stocks';
+import StockDetails from './components/pages/StockDetails';
+import StockComparison from './components/pages/StockComparison';
 
 function App() {
   return (

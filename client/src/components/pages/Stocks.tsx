@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Page from '../core/Page';
 import Button from '../core/Button';
+import List from '../core/List';
 
 const Stocks: React.FC = () => {
   const [stocks, setStocks] = useState<string[]>([]);
@@ -34,13 +35,14 @@ const Stocks: React.FC = () => {
         </a>
       </div>
       <h1>Stocks</h1>
-      <ul>
-        {stocks.map(ticker => (
+      <List
+        items={stocks}
+        renderItem={ticker => (
           <li key={ticker}>
             <Link to={`/stocks/${ticker}`}>{ticker.toUpperCase()}</Link>
           </li>
-        ))}
-      </ul>
+        )}
+      />
     </Page>
   );
 };
