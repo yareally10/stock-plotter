@@ -2,8 +2,12 @@
   "name": "stock-plotter-server",
   "version": "0.0.0",
   "private": true,
+  "devDependencies": {
+    "jest": "^29.0.0"
+  },
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "debug": "~2.6.9",
