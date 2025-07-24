@@ -45,6 +45,7 @@ const StockChart: React.FC<StockChartProps> = ({ allChartData, ticker }) => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false, // Make chart fill container
     plugins: {
       legend: { position: 'top' as const },
       title: { display: true, text: `${ticker.toUpperCase()} Close Price` },
@@ -56,7 +57,16 @@ const StockChart: React.FC<StockChartProps> = ({ allChartData, ticker }) => {
   };
 
   return (
-    <div style={{ maxWidth: 900, margin: '24px auto' }}>
+    <div
+      style={{
+        margin: '24px auto',
+        paddingLeft: 10,
+        paddingRight: 10,
+        width: '100%',
+        height: 400,
+        boxSizing: 'border-box',
+      }}
+    >
       <Line data={chartData} options={chartOptions} />
     </div>
   );

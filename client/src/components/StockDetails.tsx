@@ -18,25 +18,18 @@ const StockDetails: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [allChartData, setAllChartData] = useState<StockRow[]>([]);
 
-  // Fetch all data for the chart (unpaginated)
+  // Fetch all data for the chart (from /stocks/:ticker/prices)
   useEffect(() => {
-    fetch(`/stocks/${ticker}?page=1`)
+    fetch(`/stocks/${ticker}/prices`)
       .then(res => res.json())
       .then(json => {
-        if (json.totalPages > 1) {
-          const fetches = [];
-          for (let p = 1; p <= json.totalPages; p++) {
-            fetches.push(
-              fetch(`/stocks/${ticker}?page=${p}`).then(res => res.json())
-            );
-          }
-          Promise.all(fetches).then(results => {
-            const allRows = results.flatMap((r: any) => r.data || []);
-            setAllChartData(allRows);
-          });
-        } else {
-          setAllChartData(json.data || []);
-        }
+        // The endpoint returns { prices: [{ date, close }, ...] }
+        // Map to StockRow format expected by StockChart
+        const chartRows = (json.prices || []).map((row: any) => ({
+          Date: row.date,
+          Close: row.close
+        }));
+        setAllChartData(chartRows);
       });
   }, [ticker]);
 
