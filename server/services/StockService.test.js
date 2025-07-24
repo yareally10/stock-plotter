@@ -58,22 +58,29 @@ describe('StockService', () => {
   });
 
   describe('getStockPrice', () => {
-    it('should return all date and close prices', done => {
+    it('should return all date and close prices, startPrice, and endPrice', done => {
       const result = {
         data: [
-          { Date: '2024-01-01', Close: '100', Open: '90' },
-          { Date: '2024-01-02', Close: '110', Open: '105' }
+          { Date: '2024-01-02', Close: '110', Open: '105' },
+          { Date: '2024-01-01', Close: '100', Open: '90' }
         ]
       };
       DataService.getPaginatedStockDataFromFile.mockImplementation((ticker, page, pageSize, cb) => {
         cb(null, result);
       });
-      StockService.getStockPrice('AAPL', (err, prices) => {
+      StockService.getStockPrice('AAPL', (err, res) => {
         expect(err).toBeNull();
-        expect(prices).toEqual([
-          { date: '2024-01-01', close: '100' },
-          { date: '2024-01-02', close: '110' }
+        expect(res.prices).toEqual([
+          { date: '2024-01-02', close: '110' },
+          { date: '2024-01-01', close: '100' }
         ]);
+        // Data is sorted descending by date, so startDate is last, endDate is first
+        expect(res.startDate).toBe('2024-01-01');
+        expect(res.endDate).toBe('2024-01-02');
+        expect(res.priceChange).toBe(10);
+        expect(res.changePercentage).toBe(10);
+        expect(res.startPrice).toBe(100);
+        expect(res.endPrice).toBe(110);
         done();
       });
     });
@@ -82,9 +89,9 @@ describe('StockService', () => {
       DataService.getPaginatedStockDataFromFile.mockImplementation((ticker, page, pageSize, cb) => {
         cb(new Error('not found'));
       });
-      StockService.getStockPrice('AAPL', (err, prices) => {
+      StockService.getStockPrice('AAPL', (err, res) => {
         expect(err).toBeInstanceOf(Error);
-        expect(prices).toBeUndefined();
+        expect(res).toBeUndefined();
         done();
       });
     });

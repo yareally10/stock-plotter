@@ -18,7 +18,7 @@ class StockService {
         date: row['Date'],
         close: row['Close']
       }));
-      let startDate = null, endDate = null, priceChange = null;
+      let startDate = null, endDate = null, priceChange = null, startPrice = null, endPrice = null, changePercentage = null;
       if (prices.length > 0) {
         // Data is sorted descending by date, so last is oldest, first is newest
         startDate = prices[prices.length - 1].date;
@@ -27,9 +27,12 @@ class StockService {
         const endClose = parseFloat(prices[0].close);
         if (!isNaN(startClose) && !isNaN(endClose)) {
           priceChange = endClose - startClose;
+          changePercentage = ((endClose - startClose) / startClose) * 100;
+          startPrice = startClose;
+          endPrice = endClose;
         }
       }
-      callback(null, { prices, startDate, endDate, priceChange });
+      callback(null, { prices, startDate, endDate, priceChange, changePercentage, startPrice, endPrice });
     });
   }
 }
