@@ -18,7 +18,18 @@ class StockService {
         date: row['Date'],
         close: row['Close']
       }));
-      callback(null, prices);
+      let startDate = null, endDate = null, priceChange = null;
+      if (prices.length > 0) {
+        // Data is sorted descending by date, so last is oldest, first is newest
+        startDate = prices[prices.length - 1].date;
+        endDate = prices[0].date;
+        const startClose = parseFloat(prices[prices.length - 1].close);
+        const endClose = parseFloat(prices[0].close);
+        if (!isNaN(startClose) && !isNaN(endClose)) {
+          priceChange = endClose - startClose;
+        }
+      }
+      callback(null, { prices, startDate, endDate, priceChange });
     });
   }
 }

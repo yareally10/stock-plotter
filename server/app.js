@@ -1,10 +1,14 @@
 var express = require('express');
 var path = require('path');
+var { requestLogger } = require('./utils/logger');
 
 var indexRouter = require('./routes/index');
 var stocksRouter = require('./routes/stocks');
 
 var app = express();
+
+// Log every request (method, url, timestamp)
+app.use(requestLogger);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

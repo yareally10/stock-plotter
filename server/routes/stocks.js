@@ -15,11 +15,12 @@ router.get('/', (req, res) => {
 // GET /stocks/:ticker/prices - return all available stock price data (date and close)
 router.get('/:ticker/prices', (req, res) => {
   const ticker = req.params.ticker;
-  StockService.getStockPrice(ticker, (err, prices) => {
+  StockService.getStockPrice(ticker, (err, result) => {
     if (err) {
       return res.status(404).json({ error: 'Stock data not found' });
     }
-    res.json({ prices });
+    // result: { prices, startDate, endDate, priceChange }
+    res.json(result);
   });
 });
 
