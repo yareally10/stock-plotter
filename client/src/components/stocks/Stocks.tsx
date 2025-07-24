@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Page from '../core/Page';
+import Button from '../core/Button';
 
 const Stocks: React.FC = () => {
   const [stocks, setStocks] = useState<string[]>([]);
@@ -23,7 +25,14 @@ const Stocks: React.FC = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
+    <Page>
+      <div style={{ marginBottom: 16 }}>
+        <a href="/stocks/comparison">
+          <Button>
+            Compare Stocks
+          </Button>
+        </a>
+      </div>
       <h1>Stocks</h1>
       <ul>
         {stocks.map(ticker => (
@@ -32,7 +41,7 @@ const Stocks: React.FC = () => {
           </li>
         ))}
       </ul>
-    </div>
+    </Page>
   );
 };
 

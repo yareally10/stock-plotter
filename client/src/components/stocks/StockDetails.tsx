@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
 import StockChart from './StockChart';
 import StockTable from './StockTable';
+import Page from '../core/Page';
 
 interface StockRow {
   [key: string]: string;
@@ -64,12 +65,12 @@ const StockDetails: React.FC = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div>
+    <Page>
       <h1>{ticker?.toUpperCase()} Stock Data</h1>
       <Link to="/stocks">&larr; Back to Stocks</Link>
       <StockChart allChartData={allChartData} ticker={ticker || ''} />
       <StockTable data={data} headers={headers} page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
-    </div>
+    </Page>
   );
 };
 
