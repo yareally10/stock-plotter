@@ -17,6 +17,7 @@ This is the backend server for the Stock Plotter application. It is built with E
 ## Folder Structure
 
 - `data/processed/` — Contains processed stock CSV files (e.g., `aapl.csv`).
+  - Columns: Date, Open, High, Low, Close, Adj. Close, Change, Volume
 - `routes/` — Express route handlers.
 
 ## API Endpoints
