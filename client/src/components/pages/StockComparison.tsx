@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Page from '../core/Page';
 import Button from '../core/Button';
-import Table from '../core/Table';
+import Dropdown from '../core/Dropdown';
+import List from '../core/List';
 import StockChart from '../stocks/StockChart';
+import StockSummaryTable from '../stocks/StockSummaryTable';
+import SelectedTicker from '../stocks/SelectedTicker';
 import { Link } from 'react-router-dom';
 
 interface StockRow {
@@ -140,6 +143,14 @@ const StockComparison: React.FC = () => {
   };
 
   const availableTickers = tickers.filter(t => !selected.includes(t));
+  const dropdownOptions = availableTickers.map(ticker => ({
+    value: ticker,
+    label: ticker.toUpperCase()
+  }));
+
+  const renderSelectedTicker = (ticker: string) => (
+    <SelectedTicker key={ticker} ticker={ticker} onRemove={handleRemove} />
+  );
 
   return (
     <Page>
@@ -151,21 +162,13 @@ const StockComparison: React.FC = () => {
       <h1>Stock Comparison</h1>
       <p>Select up to 5 tickers:</p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-        <select
+        <Dropdown
           value={current}
-          onChange={e => setCurrent(e.target.value)}
+          onChange={setCurrent}
+          options={dropdownOptions}
+          placeholder={availableTickers.length === 0 ? 'No more tickers' : 'Select a ticker'}
           disabled={selected.length >= 5 || availableTickers.length === 0}
-          style={{ padding: '6px', borderRadius: 4 }}
-        >
-          <option value="" disabled>
-            {availableTickers.length === 0 ? 'No more tickers' : 'Select a ticker'}
-          </option>
-          {availableTickers.map(ticker => (
-            <option key={ticker} value={ticker}>
-              {ticker.toUpperCase()}
-            </option>
-          ))}
-        </select>
+        />
         <Button
           onClick={handleAdd}
           disabled={!current || selected.length >= 5}
@@ -175,60 +178,9 @@ const StockComparison: React.FC = () => {
       </div>
       <div>
         <h2>Chosen Tickers:</h2>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {selected.map(ticker => (
-            <li key={ticker} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <span>{ticker.toUpperCase()}</span>
-              <Button
-                onClick={() => handleRemove(ticker)}
-                style={{ background: '#e57373' }}
-              >
-                Remove
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <List items={selected} renderItem={renderSelectedTicker} />
       </div>
-      {selected.length > 0 && (
-        <div style={{ marginTop: 32 }}>
-          <h2>Comparison Table</h2>
-          <Table>
-            <thead>
-              <tr>
-                <th style={{ textAlign: 'left' }}>Ticker</th>
-                <th style={{ textAlign: 'right' }}>Start Date</th>
-                <th style={{ textAlign: 'right' }}>End Date</th>
-                <th style={{ textAlign: 'right' }}>Start Price</th>
-                <th style={{ textAlign: 'right' }}>End Price</th>
-                <th style={{ textAlign: 'right' }}>Change (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selected.map(ticker => {
-                const summary = summaries[ticker];
-                return (
-                  <tr key={ticker}>
-                    <td style={{ fontWeight: 600 }}>{ticker.toUpperCase()}</td>
-                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.startDate || '-'}</td>
-                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.endDate || '-'}</td>
-                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.startPrice === 'number' && isFinite(summary.startPrice) ? summary.startPrice.toFixed(2) : '-'}</td>
-                    <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.endPrice === 'number' && isFinite(summary.endPrice) ? summary.endPrice.toFixed(2) : '-'}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      {summary?.loading
-                        ? 'Loading...'
-                        : summary?.error
-                        ? summary.error
-                        : typeof summary?.changePercentage === 'number' && isFinite(summary.changePercentage)
-                        ? `${summary.changePercentage.toFixed(2)}%`
-                        : '-'}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        </div>
-      )}
+      <StockSummaryTable selectedTickers={selected} summaries={summaries} />
       {chartData.length > 0 && (
         <div style={{ marginTop: 32 }}>
           <h2>Price Chart</h2>
