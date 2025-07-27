@@ -17,38 +17,68 @@ interface StockRow {
   [key: string]: string;
 }
 
-interface StockChartProps {
-  allChartData: StockRow[];
+interface StockData {
   ticker: string;
+  data: StockRow[];
 }
 
-const StockChart: React.FC<StockChartProps> = ({ allChartData, ticker }) => {
-  const reversedChartData = [...allChartData].reverse();
+interface StockChartProps {
+  stocksData: StockData[];
+  title?: string;
+}
+
+const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
+  // Define colors for different stocks
+  const colors = [
+    'rgba(75,192,192,1)',
+    'rgba(255,99,132,1)',
+    'rgba(54,162,235,1)',
+    'rgba(255,206,86,1)',
+    'rgba(153,102,255,1)',
+  ];
+
+  const backgroundColorColors = [
+    'rgba(75,192,192,0.2)',
+    'rgba(255,99,132,0.2)',
+    'rgba(54,162,235,0.2)',
+    'rgba(255,206,86,0.2)',
+    'rgba(153,102,255,0.2)',
+  ];
+
+  const datasets = stocksData.map((stock, index) => {
+    const reversedData = [...stock.data].reverse();
+    return {
+      label: `${stock.ticker.toUpperCase()} Close Price`,
+      data: reversedData.map(row => {
+        const close = row['Close'];
+        if (typeof close === 'string') {
+          return parseFloat(close.replace(/,/g, ''));
+        }
+        return null;
+      }),
+      borderColor: colors[index % colors.length],
+      backgroundColor: backgroundColorColors[index % backgroundColorColors.length],
+      tension: 0.1,
+    };
+  });
+
+  // Use the first stock's dates as labels (assuming all stocks have the same date range)
+  const labels = stocksData.length > 0 ? [...stocksData[0].data].reverse().map(row => row['Date']) : [];
+
   const chartData = {
-    labels: reversedChartData.map(row => row['Date']),
-    datasets: [
-      {
-        label: 'Close Price',
-        data: reversedChartData.map(row => {
-          const close = row['Close'];
-          if (typeof close === 'string') {
-            return parseFloat(close.replace(/,/g, ''));
-          }
-          return null;
-        }),
-        borderColor: 'rgba(75,192,192,1)',
-        backgroundColor: 'rgba(75,192,192,0.2)',
-        tension: 0.1,
-      },
-    ],
+    labels,
+    datasets,
   };
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // Make chart fill container
+    maintainAspectRatio: false,
     plugins: {
       legend: { position: 'top' as const },
-      title: { display: true, text: `${ticker.toUpperCase()} Close Price` },
+      title: { 
+        display: true, 
+        text: title || (stocksData.length === 1 ? `${stocksData[0].ticker.toUpperCase()} Close Price` : 'Stock Comparison')
+      },
     },
     scales: {
       x: { title: { display: true, text: 'Date' } },

@@ -17,7 +17,7 @@ const StockDetails: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
-  const [allChartData, setAllChartData] = useState<StockRow[]>([]);
+  const [chartData, setChartData] = useState<StockRow[]>([]);
 
   // Fetch all data for the chart (from /stocks/:ticker/prices)
   useEffect(() => {
@@ -30,7 +30,7 @@ const StockDetails: React.FC = () => {
           Date: row.date,
           Close: row.close
         }));
-        setAllChartData(chartRows);
+        setChartData(chartRows);
       });
   }, [ticker]);
 
@@ -68,7 +68,7 @@ const StockDetails: React.FC = () => {
     <Page>
       <h1>{ticker?.toUpperCase()} Stock Data</h1>
       <Link to="/stocks">&larr; Back to Stocks</Link>
-      <StockChart allChartData={allChartData} ticker={ticker || ''} />
+      <StockChart stocksData={[{ ticker: ticker || '', data: chartData }]} />
       <StockTable data={data} headers={headers} page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
     </Page>
   );

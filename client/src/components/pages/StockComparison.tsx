@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Page from '../core/Page';
 import Button from '../core/Button';
 import Table from '../core/Table';
+import StockChart from '../stocks/StockChart';
 import { Link } from 'react-router-dom';
+
+interface StockRow {
+  [key: string]: string;
+}
 
 interface StockSummary {
   ticker: string;
@@ -16,11 +21,17 @@ interface StockSummary {
   error?: string;
 }
 
+interface StockChartData {
+  ticker: string;
+  data: StockRow[];
+}
+
 const StockComparison: React.FC = () => {
   const [tickers, setTickers] = useState<string[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [current, setCurrent] = useState<string>('');
   const [summaries, setSummaries] = useState<Record<string, StockSummary>>({});
+  const [chartData, setChartData] = useState<StockChartData[]>([]);
 
   useEffect(() => {
     fetch('/stocks')
@@ -80,6 +91,36 @@ const StockComparison: React.FC = () => {
           });
       }
     });
+  }, [selected]);
+
+  // Fetch chart data for all selected stocks
+  useEffect(() => {
+    const fetchChartData = async () => {
+      const chartDataPromises = selected.map(async (ticker) => {
+        try {
+          const response = await fetch(`/stocks/${ticker}/prices`);
+          const json = await response.json();
+          // Map the prices array to StockRow format expected by StockChart
+          const stockRows = (json.prices || []).map((row: any) => ({
+            Date: row.date,
+            Close: row.close
+          }));
+          return { ticker, data: stockRows };
+        } catch (error) {
+          console.error(`Failed to fetch chart data for ${ticker}:`, error);
+          return { ticker, data: [] };
+        }
+      });
+
+      const results = await Promise.all(chartDataPromises);
+      setChartData(results.filter(item => item.data.length > 0));
+    };
+
+    if (selected.length > 0) {
+      fetchChartData();
+    } else {
+      setChartData([]);
+    }
   }, [selected]);
 
   const handleAdd = () => {
@@ -186,6 +227,12 @@ const StockComparison: React.FC = () => {
               })}
             </tbody>
           </Table>
+        </div>
+      )}
+      {chartData.length > 0 && (
+        <div style={{ marginTop: 32 }}>
+          <h2>Price Chart</h2>
+          <StockChart stocksData={chartData} title="Stock Price Comparison" />
         </div>
       )}
     </Page>
