@@ -29,12 +29,12 @@ const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, 
       <Table>
         <thead>
           <tr>
-            <th style={{ textAlign: 'left' }}>Ticker</th>
-            <th style={{ textAlign: 'right' }}>Start Date</th>
-            <th style={{ textAlign: 'right' }}>End Date</th>
-            <th style={{ textAlign: 'right' }}>Start Price</th>
-            <th style={{ textAlign: 'right' }}>End Price</th>
-            <th style={{ textAlign: 'right' }}>Change (%)</th>
+            <th>Ticker</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Start Price</th>
+            <th>End Price</th>
+            <th>Change (%)</th>
           </tr>
         </thead>
         <tbody>
@@ -42,16 +42,14 @@ const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, 
             const summary = summaries[ticker];
             return (
               <tr key={ticker}>
-                <td style={{ fontWeight: 600 }}>{ticker.toUpperCase()}</td>
-                <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.startDate || '-'}</td>
-                <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : summary?.endDate || '-'}</td>
-                <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.startPrice === 'number' && isFinite(summary.startPrice) ? summary.startPrice.toFixed(2) : '-'}</td>
-                <td style={{ textAlign: 'right' }}>{summary?.loading ? 'Loading...' : typeof summary?.endPrice === 'number' && isFinite(summary.endPrice) ? summary.endPrice.toFixed(2) : '-'}</td>
-                <td style={{ textAlign: 'right' }}>
+                <td>{ticker.toUpperCase()}</td>
+                <td>{summary?.loading ? 'Loading...' : summary?.startDate || '-'}</td>
+                <td>{summary?.loading ? 'Loading...' : summary?.endDate || '-'}</td>
+                <td>{summary?.loading ? 'Loading...' : typeof summary?.startPrice === 'number' && isFinite(summary.startPrice) ? summary.startPrice.toFixed(2) : '-'}</td>
+                <td>{summary?.loading ? 'Loading...' : typeof summary?.endPrice === 'number' && isFinite(summary.endPrice) ? summary.endPrice.toFixed(2) : '-'}</td>
+                <td>
                   {summary?.loading
                     ? 'Loading...'
-                    : summary?.error
-                    ? summary.error
                     : typeof summary?.changePercentage === 'number' && isFinite(summary.changePercentage)
                     ? `${summary.changePercentage.toFixed(2)}%`
                     : '-'}
