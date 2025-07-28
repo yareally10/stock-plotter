@@ -10,6 +10,7 @@ A Node.js/Express backend server that provides REST API endpoints for stock data
 - **Service Architecture**: Separated business logic and data access layers
 - **Request Logging**: Global middleware for API request monitoring
 - **Unit Testing**: Comprehensive test coverage for service layers
+- **Environment-based config**: Uses [dotenv-flow](https://www.npmjs.com/package/dotenv-flow) for multi-environment support
 
 ## Setup Instructions
 
@@ -40,12 +41,31 @@ A Node.js/Express backend server that provides REST API endpoints for stock data
    node scripts/convertRawToProcessed.js
    ```
 
-5. **Start the server:**
+5. **Set up environment variables:**
+   - Create a `.env` file (can be empty, but must exist)
+   - For development, create `.env.development`:
+     ```
+     ALLOWED_ORIGINS=http://localhost:5173
+     ```
+   - For production, create `.env.production`:
+     ```
+     ALLOWED_ORIGINS=https://your-production-frontend.com
+     ```
+   - You can specify multiple origins (comma-separated):
+     ```
+     ALLOWED_ORIGINS=http://localhost:5173,https://your-production-frontend.com
+     ```
+
+6. **Start the server:**
    ```bash
    npm start
    ```
-
-The server will run on port 3001 by default.
+   - By default, loads `.env` and `.env.development` if `NODE_ENV=development`.
+   - For production, run:
+     ```bash
+     NODE_ENV=production npm start
+     ```
+     This loads `.env` and `.env.production`.
 
 ### Development
 

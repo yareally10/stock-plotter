@@ -1,3 +1,4 @@
+require('dotenv-flow').config();
 var express = require('express');
 var path = require('path');
 var { requestLogger } = require('./utils/logger');
@@ -8,8 +9,9 @@ var stocksRouter = require('./routes/stocks');
 
 var app = express();
 
-// Allow only the Vite dev server origin
-const allowedOrigins = ['http://localhost:5173'];
+// Allow only the origins specified in ALLOWED_ORIGINS env variable (comma-separated)
+const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);

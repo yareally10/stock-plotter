@@ -17,7 +17,6 @@ coverage/
 .nyc_output/
 
 # Environment variable files
-.env
 .env.test
 .env.production
 
