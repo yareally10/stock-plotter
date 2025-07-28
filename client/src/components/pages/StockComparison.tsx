@@ -7,26 +7,10 @@ import StockChart from '../stocks/StockChart';
 import StockSummaryTable from '../stocks/StockSummaryTable';
 import SelectedTicker from '../stocks/SelectedTicker';
 import { Link } from 'react-router-dom';
+import { StockService, StockSummary, StockChartData } from '../../services/StockService';
 
 interface StockRow {
   [key: string]: string;
-}
-
-interface StockSummary {
-  ticker: string;
-  startDate: string | null;
-  endDate: string | null;
-  priceChange: number | null;
-  startPrice: number | null;
-  endPrice: number | null;
-  changePercentage: number | null;
-  loading: boolean;
-  error?: string;
-}
-
-interface StockChartData {
-  ticker: string;
-  data: StockRow[];
 }
 
 const StockComparison: React.FC = () => {
@@ -37,9 +21,7 @@ const StockComparison: React.FC = () => {
   const [chartData, setChartData] = useState<StockChartData[]>([]);
 
   useEffect(() => {
-    fetch('/stocks')
-      .then(res => res.json())
-      .then(json => setTickers(json.stocks || []));
+    StockService.getAllTickers().then(setTickers);
   }, []);
 
   // Fetch summary for each selected ticker
@@ -59,21 +41,11 @@ const StockComparison: React.FC = () => {
             loading: true
           }
         }));
-        fetch(`/stocks/${ticker}/prices`)
-          .then(res => res.json())
-          .then(json => {
+        StockService.getStockSummary(ticker)
+          .then(summary => {
             setSummaries(prev => ({
               ...prev,
-              [ticker]: {
-                ticker,
-                startDate: json.startDate || null,
-                endDate: json.endDate || null,
-                priceChange: typeof json.priceChange === 'number' ? json.priceChange : null,
-                startPrice: typeof json.startPrice === 'number' ? json.startPrice : null,
-                endPrice: typeof json.endPrice === 'number' ? json.endPrice : null,
-                changePercentage: typeof json.changePercentage === 'number' ? json.changePercentage : null,
-                loading: false
-              }
+              [ticker]: { ...summary, loading: false }
             }));
           })
           .catch(() => {
@@ -101,24 +73,16 @@ const StockComparison: React.FC = () => {
     const fetchChartData = async () => {
       const chartDataPromises = selected.map(async (ticker) => {
         try {
-          const response = await fetch(`/stocks/${ticker}/prices`);
-          const json = await response.json();
-          // Map the prices array to StockRow format expected by StockChart
-          const stockRows = (json.prices || []).map((row: any) => ({
-            Date: row.date,
-            Close: row.close
-          }));
-          return { ticker, data: stockRows };
+          const data = await StockService.getStockChartData(ticker);
+          return { ticker, data };
         } catch (error) {
           console.error(`Failed to fetch chart data for ${ticker}:`, error);
           return { ticker, data: [] };
         }
       });
-
       const results = await Promise.all(chartDataPromises);
       setChartData(results.filter(item => item.data.length > 0));
     };
-
     if (selected.length > 0) {
       fetchChartData();
     } else {

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Page from '../core/Page';
 import Button from '../core/Button';
 import List from '../core/List';
+import { StockService } from '../../services/StockService';
 
 const Stocks: React.FC = () => {
   const [stocks, setStocks] = useState<string[]>([]);
@@ -10,10 +11,9 @@ const Stocks: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/stocks')
-      .then(res => res.json())
+    StockService.getAllTickers()
       .then(data => {
-        setStocks(data.stocks || []);
+        setStocks(data || []);
         setLoading(false);
       })
       .catch(() => {
@@ -27,7 +27,7 @@ const Stocks: React.FC = () => {
 
   return (
     <Page>
-      <div style={{ marginBottom: 16 }}>
+      <div className="mb-4">
         <a href="/stocks/comparison">
           <Button>
             Compare Stocks

@@ -3,10 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import StockChart from '../stocks/StockChart';
 import StockTable from '../stocks/StockTable';
 import Page from '../core/Page';
-
-interface StockRow {
-  [key: string]: string;
-}
+import { StockService, StockRow } from '../../services/StockService';
 
 const StockDetails: React.FC = () => {
   const { ticker } = useParams<{ ticker: string }>();
@@ -21,33 +18,22 @@ const StockDetails: React.FC = () => {
 
   // Fetch all data for the chart (from /stocks/:ticker/prices)
   useEffect(() => {
-    fetch(`/stocks/${ticker}/prices`)
-      .then(res => res.json())
-      .then(json => {
-        // The endpoint returns { prices: [{ date, close }, ...], ... }
-        // Map to StockRow format expected by StockChart
-        const chartRows = (json.prices || []).map((row: any) => ({
-          Date: row.date,
-          Close: row.close
-        }));
-        setChartData(chartRows);
-      });
+    if (!ticker) return;
+    StockService.getStockChartData(ticker)
+      .then(setChartData);
   }, [ticker]);
 
   // Fetch paginated data for the table
   useEffect(() => {
+    if (!ticker) return;
     setLoading(true);
-    fetch(`/stocks/${ticker}?page=${page}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch stock data');
-        return res.json();
-      })
-      .then(json => {
-        if (json.data && json.data.length > 0) {
-          setHeaders(Object.keys(json.data[0]));
+    StockService.getPaginatedStockData(ticker, page)
+      .then(({ data, totalPages }) => {
+        if (data && data.length > 0) {
+          setHeaders(Object.keys(data[0]));
         }
-        setData(json.data || []);
-        setTotalPages(json.totalPages || 1);
+        setData(data || []);
+        setTotalPages(totalPages || 1);
         setLoading(false);
       })
       .catch(() => {
