@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Page: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <div style={{ maxWidth: 900, margin: '24px auto', padding: 20 }}>
+  <div className="max-w-4xl mx-auto my-10 p-5">
     {children}
   </div>
 );

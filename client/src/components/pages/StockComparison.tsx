@@ -154,14 +154,14 @@ const StockComparison: React.FC = () => {
 
   return (
     <Page>
-      <div style={{ marginBottom: 16 }}>
+      <div className="mb-4">
         <Link to="/stocks">
           <Button>&larr; Back to Stocks</Button>
         </Link>
       </div>
       <h1>Stock Comparison</h1>
       <p>Select up to 5 tickers:</p>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+      <div className="flex items-center gap-2 mb-4">
         <Dropdown
           value={current}
           onChange={setCurrent}
@@ -182,7 +182,7 @@ const StockComparison: React.FC = () => {
       </div>
       <StockSummaryTable selectedTickers={selected} summaries={summaries} />
       {chartData.length > 0 && (
-        <div style={{ marginTop: 32 }}>
+        <div className="mt-8">
           <h2>Price Chart</h2>
           <StockChart stocksData={chartData} title="Stock Price Comparison" />
         </div>

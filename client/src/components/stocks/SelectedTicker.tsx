@@ -8,8 +8,8 @@ interface SelectedTickerProps {
 
 const SelectedTicker: React.FC<SelectedTickerProps> = ({ ticker, onRemove }) => {
   return (
-    <li style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-      <span>{ticker.toUpperCase()}</span>
+    <li className="flex items-center gap-2 mb-1">
+      <span className="font-medium">{ticker.toUpperCase()}</span>
       <Button
         onClick={() => onRemove(ticker)}
         style={{ background: '#e57373' }}

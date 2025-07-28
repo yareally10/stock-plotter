@@ -32,17 +32,11 @@ const Dropdown: React.FC<DropdownProps> = ({
       value={value}
       onChange={handleChange}
       disabled={disabled}
-      style={{
-        padding: '6px',
-        borderRadius: 4,
-        border: '1px solid #ccc',
-        backgroundColor: disabled ? '#f5f5f5' : '#fff',
-        color: disabled ? '#999' : '#333',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: '14px',
-        minWidth: '120px',
-        ...style,
-      }}
+      className={
+        `px-2 py-1 rounded border border-gray-300 min-w-[120px] text-sm ` +
+        (disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900 cursor-pointer')
+      }
+      style={style}
     >
       <option value="" disabled>
         {placeholder}
