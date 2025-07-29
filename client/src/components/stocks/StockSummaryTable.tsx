@@ -1,5 +1,6 @@
 import React from 'react';
 import Table from '../core/Table';
+import StockSummaryTableRow from './StockSummaryTableRow';
 
 interface StockSummary {
   ticker: string;
@@ -16,9 +17,10 @@ interface StockSummary {
 interface StockSummaryTableProps {
   selectedTickers: string[];
   summaries: Record<string, StockSummary>;
+  onRemove?: (ticker: string) => void;
 }
 
-const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, summaries }) => {
+const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, summaries, onRemove }) => {
   if (selectedTickers.length === 0) {
     return null;
   }
@@ -29,6 +31,7 @@ const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, 
       <Table>
         <thead>
           <tr>
+            <th></th>
             <th>Ticker</th>
             <th>Start Date</th>
             <th>End Date</th>
@@ -41,20 +44,12 @@ const StockSummaryTable: React.FC<StockSummaryTableProps> = ({ selectedTickers, 
           {selectedTickers.map(ticker => {
             const summary = summaries[ticker];
             return (
-              <tr key={ticker}>
-                <td>{ticker.toUpperCase()}</td>
-                <td>{summary?.loading ? 'Loading...' : summary?.startDate || '-'}</td>
-                <td>{summary?.loading ? 'Loading...' : summary?.endDate || '-'}</td>
-                <td>{summary?.loading ? 'Loading...' : typeof summary?.startPrice === 'number' && isFinite(summary.startPrice) ? summary.startPrice.toFixed(2) : '-'}</td>
-                <td>{summary?.loading ? 'Loading...' : typeof summary?.endPrice === 'number' && isFinite(summary.endPrice) ? summary.endPrice.toFixed(2) : '-'}</td>
-                <td>
-                  {summary?.loading
-                    ? 'Loading...'
-                    : typeof summary?.changePercentage === 'number' && isFinite(summary.changePercentage)
-                    ? `${summary.changePercentage.toFixed(2)}%`
-                    : '-'}
-                </td>
-              </tr>
+              <StockSummaryTableRow
+                key={ticker}
+                ticker={ticker}
+                summary={summary}
+                onRemove={onRemove}
+              />
             );
           })}
         </tbody>

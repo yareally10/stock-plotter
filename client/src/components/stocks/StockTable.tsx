@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../core/Button';
+import Button from '../core/buttons/Button';
 import Table from '../core/Table';
 import TablePaginationControls from '../core/TablePaginationControls';
 

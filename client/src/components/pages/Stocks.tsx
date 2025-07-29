@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Page from '../core/Page';
-import Button from '../core/Button';
+import Button from '../core/buttons/Button';
 import List from '../core/List';
 import { StockService } from '../../services/StockService';
 
@@ -34,7 +34,7 @@ const Stocks: React.FC = () => {
           </Button>
         </a>
       </div>
-      <h1>Stocks</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Stocks</h1>
       <List
         items={stocks}
         renderItem={ticker => (

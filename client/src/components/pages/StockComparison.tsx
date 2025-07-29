@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Page from '../core/Page';
-import Button from '../core/Button';
+import Button from '../core/buttons/Button';
 import Dropdown from '../core/Dropdown';
 import List from '../core/List';
 import StockChart from '../stocks/StockChart';
 import StockSummaryTable from '../stocks/StockSummaryTable';
-import SelectedTicker from '../stocks/SelectedTicker';
 import { Link } from 'react-router-dom';
 import { StockService, StockSummary, StockChartData } from '../../services/StockService';
 
@@ -112,9 +111,7 @@ const StockComparison: React.FC = () => {
     label: ticker.toUpperCase()
   }));
 
-  const renderSelectedTicker = (ticker: string) => (
-    <SelectedTicker key={ticker} ticker={ticker} onRemove={handleRemove} />
-  );
+
 
   return (
     <Page>
@@ -140,11 +137,8 @@ const StockComparison: React.FC = () => {
           Add
         </Button>
       </div>
-      <div>
-        <h2>Chosen Tickers:</h2>
-        <List items={selected} renderItem={renderSelectedTicker} />
-      </div>
-      <StockSummaryTable selectedTickers={selected} summaries={summaries} />
+
+      <StockSummaryTable selectedTickers={selected} summaries={summaries} onRemove={handleRemove} />
       {chartData.length > 0 && (
         <div className="mt-8">
           <h2>Price Chart</h2>
