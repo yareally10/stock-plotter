@@ -16,10 +16,11 @@ interface StockTableProps {
 }
 
 const StockTable: React.FC<StockTableProps> = ({ data, headers, page, totalPages, handlePageChange }) => {
-  const reversedData = [...data].reverse();
   return (
     <>
-      <TablePaginationControls page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+      <div className="mb-4">
+        <TablePaginationControls page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+      </div>
       <Table>
         <thead>
           <tr>
@@ -29,7 +30,7 @@ const StockTable: React.FC<StockTableProps> = ({ data, headers, page, totalPages
           </tr>
         </thead>
         <tbody>
-          {reversedData.map((row, idx) => (
+          {data.map((row, idx) => (
             <tr key={idx}>
               {headers.map(header => (
                 <td key={header}>{row[header]}</td>
