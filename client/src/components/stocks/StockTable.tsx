@@ -18,9 +18,6 @@ interface StockTableProps {
 const StockTable: React.FC<StockTableProps> = ({ data, headers, page, totalPages, handlePageChange }) => {
   return (
     <>
-      <div className="mb-4">
-        <TablePaginationControls page={page} totalPages={totalPages} onPageChange={handlePageChange} />
-      </div>
       <Table>
         <thead>
           <tr>

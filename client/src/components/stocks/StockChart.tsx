@@ -76,12 +76,20 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
     plugins: {
       legend: { position: 'top' as const },
       title: { 
-        display: true, 
-        text: title || (stocksData.length === 1 ? `${stocksData[0].ticker.toUpperCase()} Close Price` : 'Stock Comparison')
+        display: false
       },
     },
     scales: {
-      x: { title: { display: true, text: 'Date' } },
+      x: { 
+        title: { display: true, text: 'Date' },
+        ticks: {
+          maxRotation: 0,
+          minRotation: 0,
+          font: {
+            size: 12
+          }
+        }
+      },
       y: { title: { display: true, text: 'Price' } },
     },
   };
@@ -93,7 +101,7 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
         paddingLeft: 10,
         paddingRight: 10,
         width: '100%',
-        height: 400,
+        height: 300,
         boxSizing: 'border-box',
       }}
     >
