@@ -27,10 +27,15 @@ const Stocks: React.FC = () => {
 
   return (
     <Page>
-      <div className="mb-4">
+      <div className="mb-4 flex gap-4">
         <a href="/stocks/comparison">
           <Button>
             Compare Stocks
+          </Button>
+        </a>
+        <a href="/stocks/plan">
+          <Button>
+            Plan Investment
           </Button>
         </a>
       </div>
