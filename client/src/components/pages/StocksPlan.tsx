@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../core/buttons/Button';
 import Dropdown from '../core/Dropdown';
 import { StockService } from '../../services/StockService';
@@ -98,6 +99,14 @@ const StocksPlan: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      <div className="mb-6">
+        <Link to="/stocks">
+          <Button className="mb-4">
+            ← Back to Stocks
+          </Button>
+        </Link>
+      </div>
+      
       <h1 className="text-3xl font-bold mb-8">Investment Plan Calculator</h1>
       
       <div className="space-y-6">

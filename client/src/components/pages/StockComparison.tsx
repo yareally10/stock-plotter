@@ -120,7 +120,7 @@ const StockComparison: React.FC = () => {
           <Button>&larr; Back to Stocks</Button>
         </Link>
       </div>
-      <h1>Stock Comparison</h1>
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">Stock Comparison</h1>
       <p>Select up to 5 tickers:</p>
       <div className="flex items-center gap-2 mb-4">
         <Dropdown

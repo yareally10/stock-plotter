@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import StockChart from '../stocks/StockChart';
 import StockTable from '../stocks/StockTable';
 import Page from '../core/Page';
+import Button from '../core/buttons/Button';
 import { StockService, StockRow } from '../../services/StockService';
 
 const StockDetails: React.FC = () => {
@@ -52,8 +53,15 @@ const StockDetails: React.FC = () => {
 
   return (
     <Page>
-      <h1>{ticker?.toUpperCase()} Stock Data</h1>
-      <Link to="/stocks">&larr; Back to Stocks</Link>
+      <div className="mb-6">
+        <Link to="/stocks">
+          <Button className="mb-4">
+            ← Back to Stocks
+          </Button>
+        </Link>
+      </div>
+      
+      <h1 className="text-3xl font-bold text-gray-900 mb-6">{ticker?.toUpperCase()} Stock Data</h1>
       <StockChart stocksData={[{ ticker: ticker || '', data: chartData }]} />
       <StockTable data={data} headers={headers} page={page} totalPages={totalPages} handlePageChange={handlePageChange} />
     </Page>
