@@ -23,6 +23,27 @@ export interface StockChartData {
   data: StockRow[];
 }
 
+export interface InvestmentStep {
+  date: string;
+  stockPrice: number;
+  sharesOwned: number;
+  investmentValue: number;
+  totalReturn: number;
+  returnPercentage: number;
+}
+
+export interface InvestmentProjection {
+  ticker: string;
+  initialInvestment: number;
+  duration: number;
+  startDate: string;
+  endDate: string;
+  finalValue: number;
+  totalReturn: number;
+  totalReturnPercentage: number;
+  steps: InvestmentStep[];
+}
+
 export const StockService = {
   async getAllTickers(): Promise<string[]> {
     const res = await fetch(`${API_URL}/stocks`);
@@ -61,6 +82,90 @@ export const StockService = {
     return {
       data: json.data || [],
       totalPages: json.totalPages || 1
+    };
+  },
+
+  async calculateInvestmentProjection(
+    ticker: string, 
+    initialInvestment: number, 
+    duration: number
+  ): Promise<InvestmentProjection> {
+    // Validate inputs
+    if (initialInvestment <= 0) {
+      throw new Error('Initial investment must be greater than 0');
+    }
+    if (![1, 3, 5].includes(duration)) {
+      throw new Error('Duration must be 1, 3, or 5 years');
+    }
+
+    // Get historical stock data
+    const stockData = await this.getStockChartData(ticker);
+    
+    if (stockData.length === 0) {
+      throw new Error(`No historical data available for ${ticker}`);
+    }
+
+    // Sort data by date (oldest first)
+    const sortedData = stockData.sort((a, b) => 
+      new Date(a.Date).getTime() - new Date(b.Date).getTime()
+    );
+
+    // Calculate the target end date based on duration
+    const startDate = new Date(sortedData[0].Date);
+    const endDate = new Date(startDate);
+    endDate.setFullYear(endDate.getFullYear() + duration);
+
+    // Filter data to only include entries within the duration period
+    const filteredData = sortedData.filter(row => {
+      const rowDate = new Date(row.Date);
+      return rowDate >= startDate && rowDate <= endDate;
+    });
+
+    if (filteredData.length === 0) {
+      throw new Error(`Insufficient data for ${duration} year projection`);
+    }
+
+    // Calculate investment projection
+    const steps: InvestmentStep[] = [];
+    let sharesOwned = 0;
+    const initialPrice = parseFloat(filteredData[0].Close);
+
+    // Calculate initial shares purchased
+    sharesOwned = initialInvestment / initialPrice;
+
+    // Calculate investment value at each data point
+    filteredData.forEach((row, index) => {
+      const currentPrice = parseFloat(row.Close);
+      const investmentValue = sharesOwned * currentPrice;
+      const totalReturn = investmentValue - initialInvestment;
+      const returnPercentage = (totalReturn / initialInvestment) * 100;
+
+      steps.push({
+        date: row.Date,
+        stockPrice: currentPrice,
+        sharesOwned: sharesOwned,
+        investmentValue: investmentValue,
+        totalReturn: totalReturn,
+        returnPercentage: returnPercentage
+      });
+    });
+
+    // Get final values
+    const finalStep = steps[steps.length - 1];
+    const finalValue = finalStep.investmentValue;
+    const totalReturn = finalStep.totalReturn;
+    const totalReturnPercentage = finalStep.returnPercentage;
+
+    return {
+      ticker,
+      initialInvestment,
+      duration,
+      startDate: filteredData[0].Date,
+      endDate: filteredData[filteredData.length - 1].Date,
+      finalValue,
+      totalReturn,
+      totalReturnPercentage,
+      steps
     };
   }
 }; 

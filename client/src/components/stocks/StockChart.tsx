@@ -46,10 +46,9 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
   ];
 
   const datasets = stocksData.map((stock, index) => {
-    const reversedData = [...stock.data].reverse();
     return {
       label: `${stock.ticker.toUpperCase()} Close Price`,
-      data: reversedData.map(row => {
+      data: stock.data.map(row => {
         const close = row['Close'];
         if (typeof close === 'string') {
           return parseFloat(close.replace(/,/g, ''));
@@ -63,7 +62,7 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
   });
 
   // Use the first stock's dates as labels (assuming all stocks have the same date range)
-  const labels = stocksData.length > 0 ? [...stocksData[0].data].reverse().map(row => row['Date']) : [];
+  const labels = stocksData.length > 0 ? stocksData[0].data.map(row => row['Date']) : [];
 
   const chartData = {
     labels,

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Button from '../core/buttons/Button';
 import Dropdown from '../core/Dropdown';
-import { StockService } from '../../services/StockService';
+import Tab, { TabItem } from '../core/Tab';
+import InvestmentChartView from '../stocks/InvestmentChartView';
+import InvestmentTableView from '../stocks/InvestmentTableView';
+import { StockService, InvestmentProjection } from '../../services/StockService';
 
 interface StockOption {
   value: string;
@@ -23,6 +26,9 @@ const StocksPlan: React.FC = () => {
   const [stockOptions, setStockOptions] = useState<StockOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [calculating, setCalculating] = useState(false);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
+  const [projections, setProjections] = useState<InvestmentProjection[]>([]);
 
   useEffect(() => {
     const fetchStocks = async () => {
@@ -80,19 +86,73 @@ const StocksPlan: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValidAllocation) {
       alert('Please ensure total allocation is 100%.');
       return;
     }
+
+    // Validate that all stocks are selected
+    const hasEmptyTickers = selectedStocks.some(stock => !stock.ticker);
+    if (hasEmptyTickers) {
+      alert('Please select all stocks before calculating.');
+      return;
+    }
     
-    console.log('Investment Plan:', {
-      startingInvestment,
-      investmentPeriod,
-      allocations: selectedStocks
-    });
-    // Here you would typically send this data to your backend
+    setCalculating(true);
+    setCalculationError(null);
+    setProjections([]);
+
+    try {
+      const duration = parseInt(investmentPeriod);
+      const projectionPromises = selectedStocks.map(async (stock) => {
+        const stockInvestment = (startingInvestment * stock.percentage) / 100;
+        return await StockService.calculateInvestmentProjection(
+          stock.ticker,
+          stockInvestment,
+          duration
+        );
+      });
+
+      const results = await Promise.all(projectionPromises);
+      setProjections(results);
+    } catch (err) {
+      setCalculationError(err instanceof Error ? err.message : 'Failed to calculate investment projections');
+    } finally {
+      setCalculating(false);
+    }
   };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  };
+
+  const formatPercentage = (percentage: number) => {
+    return `${percentage >= 0 ? '+' : ''}${percentage.toFixed(2)}%`;
+  };
+
+  // Tab content components using the new separate components
+  const TableView = () => <InvestmentTableView projections={projections} />;
+  const ChartView = () => <InvestmentChartView projections={projections} />;
+
+  // Tab configuration
+  const tabs: TabItem[] = [
+    {
+      id: 'table',
+      label: 'Table View',
+      content: <TableView />
+    },
+    {
+      id: 'chart',
+      label: 'Chart View',
+      content: <ChartView />
+    }
+  ];
 
   if (loading) return <div className="max-w-4xl mx-auto p-6">Loading available stocks...</div>;
   if (error) return <div className="max-w-4xl mx-auto p-6 text-red-600">{error}</div>;
@@ -240,12 +300,54 @@ const StocksPlan: React.FC = () => {
         <div className="pt-4">
           <Button
             onClick={handleSubmit}
-            disabled={!isValidAllocation}
+            disabled={!isValidAllocation || calculating}
             className="w-full"
           >
-            Calculate Investment Plan
+            {calculating ? 'Calculating...' : 'Calculate Investment Plan'}
           </Button>
         </div>
+
+        {/* Calculation Error */}
+        {calculationError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-600">{calculationError}</p>
+          </div>
+        )}
+
+        {/* Portfolio Summary - Always Visible */}
+        {projections.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-6">Portfolio Summary</h2>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <h3 className="text-lg font-semibold mb-2">Investment Results</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-gray-600">Initial Investment</p>
+                  <p className="font-bold">{formatCurrency(startingInvestment)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Final Value</p>
+                  <p className="font-bold">{formatCurrency(projections.reduce((sum, p) => sum + p.finalValue, 0))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Total Return</p>
+                  <p className="font-bold">{formatCurrency(projections.reduce((sum, p) => sum + p.totalReturn, 0))}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">Return %</p>
+                  <p className="font-bold">{formatPercentage(projections.reduce((sum, p) => sum + p.totalReturn, 0) / startingInvestment * 100)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Investment Projections Tabs */}
+        {projections.length > 0 && (
+          <div className="mt-6">
+            <Tab tabs={tabs} defaultActiveTab="table" />
+          </div>
+        )}
       </div>
     </div>
   );
