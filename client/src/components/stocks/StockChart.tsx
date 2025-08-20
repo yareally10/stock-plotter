@@ -10,20 +10,15 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-interface StockRow {
-  [key: string]: string;
-}
-
-interface StockData {
-  ticker: string;
-  data: StockRow[];
-}
+import { StockChartData } from '../../services/StockService';
+import { normalizeStocksDataDatesAscending } from '../../services/util';
 
 interface StockChartProps {
-  stocksData: StockData[];
+  stocksData: StockChartData[];
   title?: string;
 }
 
@@ -45,7 +40,10 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
     'rgba(153,102,255,0.2)',
   ];
 
-  const datasets = stocksData.map((stock, index) => {
+  // Ensure each stock's data is in ascending date order (oldest -> newest)
+  const normalizedStocksData = normalizeStocksDataDatesAscending(stocksData);
+
+  const datasets = normalizedStocksData.map((stock, index) => {
     return {
       label: `${stock.ticker.toUpperCase()} Close Price`,
       data: stock.data.map(row => {
@@ -61,15 +59,33 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
     };
   });
 
+  // Helper to format date labels for readability
+  const formatDateLabel = (dateStr: string): string => {
+    // YYYY-MM -> MMM YYYY
+    const ymMatch = /^\d{4}-\d{2}$/.test(dateStr);
+    if (ymMatch) {
+      const date = new Date(`${dateStr}-01T00:00:00Z`);
+      return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    }
+    // Try generic date parsing
+    const d = new Date(dateStr);
+    if (!Number.isNaN(d.getTime())) {
+      // Show short, readable format
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    return dateStr;
+  };
+
   // Use the first stock's dates as labels (assuming all stocks have the same date range)
-  const labels = stocksData.length > 0 ? stocksData[0].data.map(row => row['Date']) : [];
+  const labelsRaw = normalizedStocksData.length > 0 ? normalizedStocksData[0].data.map(row => row['Date']) : [];
+  const labels = labelsRaw.map(formatDateLabel);
 
   const chartData = {
     labels,
     datasets,
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -80,16 +96,18 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
     },
     scales: {
       x: { 
-        title: { display: true, text: 'Date' },
+        title: { display: true, text: 'Date', font: { weight: 700 } },
         ticks: {
           maxRotation: 0,
           minRotation: 0,
+          autoSkip: true,
+          maxTicksLimit: Math.min(12, labels.length || 12),
           font: {
             size: 12
           }
         }
       },
-      y: { title: { display: true, text: 'Price' } },
+      y: { title: { display: true, text: 'Price', font: { weight: 700 } } },
     },
   };
 
