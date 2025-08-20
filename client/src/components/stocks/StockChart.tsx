@@ -61,17 +61,16 @@ const StockChart: React.FC<StockChartProps> = ({ stocksData, title }) => {
 
   // Helper to format date labels for readability
   const formatDateLabel = (dateStr: string): string => {
-    // YYYY-MM -> MMM YYYY
-    const ymMatch = /^\d{4}-\d{2}$/.test(dateStr);
-    if (ymMatch) {
-      const date = new Date(`${dateStr}-01T00:00:00Z`);
-      return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    // YYYY-MM -> MMM YYYY (render in UTC to avoid TZ month shift)
+    if (/^\d{4}-\d{2}$/.test(dateStr)) {
+      const [y, m] = dateStr.split('-').map(Number);
+      const date = new Date(Date.UTC(y, (m || 1) - 1, 1));
+      return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric', timeZone: 'UTC' });
     }
-    // Try generic date parsing
+    // Try generic date parsing (render in UTC)
     const d = new Date(dateStr);
     if (!Number.isNaN(d.getTime())) {
-      // Show short, readable format
-      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
     }
     return dateStr;
   };
