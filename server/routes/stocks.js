@@ -15,7 +15,9 @@ router.get('/', (req, res) => {
 // GET /stocks/:ticker/prices - return all available stock price data (date and close)
 router.get('/:ticker/prices', (req, res) => {
   const ticker = req.params.ticker;
-  StockService.getStockPrice(ticker, (err, result) => {
+  const duration = parseInt(req.query.durationMonths, 10);
+  const durationMonths = Number.isFinite(duration) && duration > 0 ? duration : 60;
+  StockService.getStockPrice(ticker, durationMonths, (err, result) => {
     if (err) {
       return res.status(404).json({ error: 'Stock data not found' });
     }
