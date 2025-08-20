@@ -12,7 +12,7 @@ function parseDate(rawDate) {
   };
   const parts = rawDate.trim().split(' ');
   if (parts.length === 2 && months[parts[0]]) {
-    return `${parts[1]}-${months[parts[0]]}-01`;
+    return `${parts[1]}-${months[parts[0]]}`;
   }
   // fallback: return as is
   return rawDate;

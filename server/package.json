@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node ./bin/www",
     "test": "jest",
-    "dev": "NODE_ENV=development nodemon ./bin/www"
+    "dev": "NODE_ENV=development nodemon ./bin/www",
+    "data:process": "node ./scripts/convertRawToProcessed.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
