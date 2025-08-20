@@ -6,6 +6,7 @@ import Tab, { TabItem } from '../core/Tab';
 import InvestmentChartView from '../stocks/InvestmentChartView';
 import InvestmentTableView from '../stocks/InvestmentTableView';
 import { StockService, InvestmentProjection } from '../../services/StockService';
+import { useStockContext } from '../../context/StockContext';
 
 interface StockOption {
   value: string;
@@ -24,30 +25,18 @@ const StocksPlan: React.FC = () => {
     { ticker: '', percentage: 0 }
   ]);
   const [stockOptions, setStockOptions] = useState<StockOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { tickers, loadingTickers: loading, tickersError: error } = useStockContext();
   const [calculating, setCalculating] = useState(false);
   const [calculationError, setCalculationError] = useState<string | null>(null);
   const [projections, setProjections] = useState<InvestmentProjection[]>([]);
 
   useEffect(() => {
-    const fetchStocks = async () => {
-      try {
-        const tickers = await StockService.getAllTickers();
-        const options = tickers.map(ticker => ({
-          value: ticker,
-          label: `${ticker.toUpperCase()}`
-        }));
-        setStockOptions(options);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch available stocks');
-        setLoading(false);
-      }
-    };
-
-    fetchStocks();
-  }, []);
+    const options = (tickers || []).map(ticker => ({
+      value: ticker,
+      label: `${ticker.toUpperCase()}`
+    }));
+    setStockOptions(options);
+  }, [tickers]);
 
   const totalPercentage = selectedStocks.reduce((sum, stock) => sum + stock.percentage, 0);
   const isValidAllocation = totalPercentage === 100;

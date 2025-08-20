@@ -4,23 +4,10 @@ import Page from '../core/Page';
 import Button from '../core/buttons/Button';
 import List from '../core/List';
 import { StockService } from '../../services/StockService';
+import { useStockContext } from '../../context/StockContext';
 
 const Stocks: React.FC = () => {
-  const [stocks, setStocks] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    StockService.getAllTickers()
-      .then(data => {
-        setStocks(data || []);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to fetch stocks');
-        setLoading(false);
-      });
-  }, []);
+  const { tickers: stocks, loadingTickers: loading, tickersError: error } = useStockContext();
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;

@@ -7,21 +7,20 @@ import StockChart from '../stocks/StockChart';
 import StockSummaryTable from '../stocks/StockSummaryTable';
 import { Link } from 'react-router-dom';
 import { StockService, StockSummary, StockChartData } from '../../services/StockService';
+import { useStockContext } from '../../context/StockContext';
 
 interface StockRow {
   [key: string]: string;
 }
 
 const StockComparison: React.FC = () => {
-  const [tickers, setTickers] = useState<string[]>([]);
+  const { tickers } = useStockContext();
   const [selected, setSelected] = useState<string[]>([]);
   const [current, setCurrent] = useState<string>('');
   const [summaries, setSummaries] = useState<Record<string, StockSummary>>({});
   const [chartData, setChartData] = useState<StockChartData[]>([]);
 
-  useEffect(() => {
-    StockService.getAllTickers().then(setTickers);
-  }, []);
+  // tickers are provided by context
 
   // Fetch summary for each selected ticker
   useEffect(() => {
