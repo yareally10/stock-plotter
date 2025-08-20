@@ -63,7 +63,7 @@ const StocksPlan: React.FC = () => {
   };
 
   const addStock = () => {
-    if (selectedStocks.length < 2) {
+    if (selectedStocks.length < 6) {
       setSelectedStocks([...selectedStocks, { ticker: '', percentage: 0 }]);
     }
   };
@@ -220,7 +220,7 @@ const StocksPlan: React.FC = () => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Stock Allocations</h2>
-            {selectedStocks.length < 2 && (
+            {selectedStocks.length < 6 && (
               <Button onClick={addStock} className="text-sm">
                 Add Stock
               </Button>

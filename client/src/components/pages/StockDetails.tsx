@@ -20,7 +20,7 @@ const StockDetails: React.FC = () => {
   // Fetch all data for the chart (from /stocks/:ticker/prices)
   useEffect(() => {
     if (!ticker) return;
-    StockService.getStockChartData(ticker)
+    StockService.getStockPriceData(ticker)
       .then(setChartData);
   }, [ticker]);
 

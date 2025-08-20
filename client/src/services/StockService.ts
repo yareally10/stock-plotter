@@ -66,8 +66,11 @@ export const StockService = {
     };
   },
 
-  async getStockChartData(ticker: string): Promise<StockRow[]> {
-    const res = await fetch(`${API_URL}/stocks/${ticker}/prices`);
+  async getStockPriceData(ticker: string, durationMonths?: number): Promise<StockRow[]> {
+    const url = durationMonths 
+      ? `${API_URL}/stocks/${ticker}/prices?durationMonths=${durationMonths}`
+      : `${API_URL}/stocks/${ticker}/prices`;
+    const res = await fetch(url);
     const json = await res.json();
     return (json.prices || []).map((row: any) => ({
       Date: row.date,
@@ -98,8 +101,9 @@ export const StockService = {
       throw new Error('Duration must be 1, 3, or 5 years');
     }
 
-    // Get historical stock data
-    const stockData = await this.getStockChartData(ticker);
+    // Convert years to months and get historical stock data
+    const durationMonths = duration * 12;
+    const stockData = await this.getStockPriceData(ticker, durationMonths);
     
     if (stockData.length === 0) {
       throw new Error(`No historical data available for ${ticker}`);

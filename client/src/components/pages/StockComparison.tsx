@@ -71,7 +71,7 @@ const StockComparison: React.FC = () => {
     const fetchChartData = async () => {
       const chartDataPromises = selected.map(async (ticker) => {
         try {
-          const data = await StockService.getStockChartData(ticker);
+          const data = await StockService.getStockPriceData(ticker);
           return { ticker, data };
         } catch (error) {
           console.error(`Failed to fetch chart data for ${ticker}:`, error);
